@@ -1,0 +1,7 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="ExtraTranslation" tools:keep="all">
+
+    <string name="no_application_for_call">Отсутствует приложение для осуществления звонка</string>
+    <string name="no_application_for_mail">Отсутствует приложение для отправки почты</string>
+    <string name="no_application_for_view">Не найдено приложений для осуществления действия</string>
+    <string name="utils_error">Ошибка</string>
+</resources>
