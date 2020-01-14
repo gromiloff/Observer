@@ -19,20 +19,15 @@ import observer.ParserBaseImpl
 import observer.ProtectedObserverListener
 
 abstract class ObserverFragment<T : ViewModel> : Fragment(), ProtectedObserverListener {
-   
-    abstract fun getModelClass(): Class<T>
-
-    fun getModel() = getCustomModel(getModelClass())
-
-    fun <Model : ViewModel> getCustomModel(clazz: Class<Model>) : Model = ViewModelProviders.of(this).get(clazz)
+    private val consumeKey = System.nanoTime().toString()
 
     abstract val layoutId : Int
+    abstract val modelClass: Class<T>
 
     protected open val observer : androidx.lifecycle.Observer<Any?> = androidx.lifecycle.Observer {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val model = getModel()
-        if (model is LifecycleObserver) this.lifecycle.addObserver(model)
+        (getModel() as? LifecycleObserver)?.also { this.lifecycle.addObserver(it) }
         super.onCreate(savedInstanceState)
     }
 
@@ -69,8 +64,7 @@ abstract class ObserverFragment<T : ViewModel> : Fragment(), ProtectedObserverLi
     }
     
     override fun onDestroy() {
-        val model = getModel()
-        if (model is LifecycleObserver) this.lifecycle.removeObserver(model)
+        (getModel() as? LifecycleObserver)?.also { this.lifecycle.removeObserver(it) }
         FragmentObserver.deleteObserver(this)
         super.onDestroy()
     }
@@ -79,7 +73,7 @@ abstract class ObserverFragment<T : ViewModel> : Fragment(), ProtectedObserverLi
     override fun update(o: FastObserver, arg: Any?) {
     }
 
-    override fun consumerClass() = toString()
+    override fun consumerClass() = this.consumeKey
 
     @AnyThread
     fun showDialog(dialog: DialogFragment) {
@@ -87,6 +81,10 @@ abstract class ObserverFragment<T : ViewModel> : Fragment(), ProtectedObserverLi
             if (fragmentManager != null) dialog.show(fragmentManager!!, dialog.javaClass.simpleName)
         }
     }
+
+    fun getModel() = getCustomModel(this.modelClass)
+
+    fun <Model : ViewModel> getCustomModel(clazz: Class<Model>) : Model = ViewModelProviders.of(this).get(clazz)
 }
 
 interface LiveModel<Data> {

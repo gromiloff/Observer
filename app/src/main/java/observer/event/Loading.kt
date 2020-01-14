@@ -2,7 +2,7 @@
 
 package observer.event
 
-import observer.ActivityObserverImpl
+import observer.ActivityAndFragmentObserverImpl
 
 class Loading {
     companion object {
@@ -15,5 +15,5 @@ class Loading {
     }
 }
 
-class LoadingStart : ActivityObserverImpl()
-class LoadingStop(val asGone : Boolean = false) : ActivityObserverImpl()
+class LoadingStart : ActivityAndFragmentObserverImpl()
+class LoadingStop(val asGone : Boolean = false) : ActivityAndFragmentObserverImpl()

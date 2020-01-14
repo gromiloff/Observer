@@ -20,6 +20,8 @@ import observer.event.ShowToast
 import java.util.*
 
 abstract class ObserverActivity<T : ViewModel> : AppCompatActivity(), ProtectedObserverListener {
+    private val consumeKey = System.nanoTime().toString()
+
     object Const {
         const val permissions = 999
     }
@@ -32,7 +34,7 @@ abstract class ObserverActivity<T : ViewModel> : AppCompatActivity(), ProtectedO
     }
 
     private val stackEventsByResume = Stack<ObserverImpl>()
-    protected var checkTime : Long = Long.MIN_VALUE
+    protected var permissionTimeCheck : Long = Long.MIN_VALUE
 
     abstract val layoutId : Int
 
@@ -40,13 +42,11 @@ abstract class ObserverActivity<T : ViewModel> : AppCompatActivity(), ProtectedO
         ActivityObserver.addObserver(this)
         super.onCreate(savedInstanceState)
         val l = this.layoutId
-        if (l > 0) {
-            setContentView(l)
-        }
+        if (l > 0) setContentView(l)
 
         val model = getModel()
-        if (model is LifecycleObserver) this.lifecycle.addObserver(model)
-        (getModel() as? ParserBaseImpl<*>)?.load(savedInstanceState, intent?.extras)
+        (model as? LifecycleObserver)?.also { this.lifecycle.addObserver(it) }
+        (model as? ParserBaseImpl<*>)?.load(savedInstanceState, intent?.extras)
     }
 
     override fun onStart() {
@@ -96,12 +96,12 @@ abstract class ObserverActivity<T : ViewModel> : AppCompatActivity(), ProtectedO
         }
     }
 
-    override fun consumerClass() = toString()
+    override fun consumerClass() = this.consumeKey
 
-    fun getModel() = ViewModelProviders.of(this).get(EmptyBaseModel.ME, getModelClass())
+    fun getModel() = ViewModelProviders.of(this).get(EmptyBaseModel.ME, this.modelClass)
 
     @Suppress("UNCHECKED_CAST")
-    open fun getModelClass(): Class<T> = EmptyBaseModel::class.java as Class<T>
+    open val modelClass : Class<T> = EmptyBaseModel::class.java as Class<T>
 
     @CallSuper
     open fun command(arg: ObserverImpl) {
