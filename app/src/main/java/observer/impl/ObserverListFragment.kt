@@ -29,24 +29,28 @@ abstract class ObserverListFragment<Adapter : RecyclerView.Adapter<RecyclerView.
     @Suppress("UNCHECKED_CAST")
     override var observer = androidx.lifecycle.Observer<Any?> { fillAdapter(it as ModelData) }
 
-    override fun layoutId() = R.layout.fragment_list
+    override val layoutId = R.layout.fragment_list
+
+    open val listLayoutId = R.id.utils_list
+    open val swipeRefreshLayoutId = R.id.utils_frame
+    open val emptyLayoutId = android.R.id.empty
 
     @MainThread
     @CallSuper
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        this.list = view.findViewById(android.R.id.list)
+        this.list = view.findViewById(this.listLayoutId)
 
         // проверка на дибила
-        val tmp = view.findViewById<View>(R.id.utils_frame)
+        val tmp = view.findViewById<View>(this.swipeRefreshLayoutId)
         if(tmp is SwipeRefreshLayout) {
             this.swipeRefreshLayout = tmp
             this.swipeRefreshLayout?.isEnabled = swipeRefreshSupported()
             this.swipeRefreshLayout?.setOnRefreshListener(this)
         }
 
-        this.empty = view.findViewById(android.R.id.empty)
+        this.empty = view.findViewById(this.emptyLayoutId)
         this.empty?.visibility = View.GONE
     }
 

@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.Gravity
 import android.widget.Toast
 import androidx.annotation.CallSuper
-import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -35,13 +34,12 @@ abstract class ObserverActivity<T : ViewModel> : AppCompatActivity(), ProtectedO
     private val stackEventsByResume = Stack<ObserverImpl>()
     protected var checkTime : Long = Long.MIN_VALUE
 
-    @LayoutRes
-    protected open fun layoutId() = 0
+    abstract val layoutId : Int
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ActivityObserver.addObserver(this)
         super.onCreate(savedInstanceState)
-        val l = layoutId()
+        val l = this.layoutId
         if (l > 0) {
             setContentView(l)
         }

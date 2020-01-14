@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.AnyThread
 import androidx.annotation.CallSuper
-import androidx.annotation.LayoutRes
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleObserver
@@ -27,8 +26,7 @@ abstract class ObserverFragment<T : ViewModel> : Fragment(), ProtectedObserverLi
 
     fun <Model : ViewModel> getCustomModel(clazz: Class<Model>) : Model = ViewModelProviders.of(this).get(clazz)
 
-    @LayoutRes
-    protected abstract fun layoutId(): Int
+    abstract val layoutId : Int
 
     protected open val observer : androidx.lifecycle.Observer<Any?> = androidx.lifecycle.Observer {}
 
@@ -43,7 +41,7 @@ abstract class ObserverFragment<T : ViewModel> : Fragment(), ProtectedObserverLi
         (getModel() as? ParserBaseImpl<*>)?.load(savedInstanceState, arguments)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) = inflater.inflate(layoutId(), container, false)!!
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) = inflater.inflate(this.layoutId, container, false)!!
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
