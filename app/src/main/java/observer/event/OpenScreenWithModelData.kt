@@ -5,24 +5,31 @@ package observer.event
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import androidx.annotation.AnyThread
+import androidx.annotation.MainThread
 import observer.ActivityObserverImpl
-import observer.ViewModelParser
+import observer.ParserFullImpl
 
 open class OpenScreenWithModelData(private val clz: Class<*>,
                                    private val closeCurrent: Boolean = false,
                                    private val code: Int = -1,
-                                   vararg parsers: ViewModelParser<*, *>
+                                   private val parsers: ArrayList<ParserFullImpl<*>> = ArrayList()
 ) : ActivityObserverImpl() {
-    private val parsersList = parsers
 
+    @AnyThread
+    fun addParser(parser : ParserFullImpl<*>){
+        this.parsers.add(parser)
+    }
+
+    @MainThread
     fun fill(activity: Activity) {
+        var bundle : Bundle? = null
+        this.parsers.forEach { bundle = it.save(bundle) }
+
         val i = Intent(activity, this.clz)
-        if (this.parsersList.isNotEmpty()) {
-            val bundle = Bundle()
-            this.parsersList.forEach { it.save(bundle) }
-            i.putExtras(bundle)
-        }
-        if (this.closeCurrent) activity.finish()
+        bundle?.let { i.putExtras(it) }
+
         activity.startActivityForResult(i, this.code)
+        if (this.closeCurrent) activity.finish()
     }
 }

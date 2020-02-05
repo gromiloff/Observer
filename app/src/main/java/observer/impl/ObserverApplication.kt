@@ -26,72 +26,72 @@ open class ObserverApplication : Application(), ProtectedObserverListener {
         super.attachBaseContext(base)
         ApplicationObserver.addObserver(this)
     }
+}
 
-    /* получение референса на реализацию класса Application */
-    object Instance {
-        fun <App : ObserverApplication> from(context: Context) : App = context.applicationContext as App
+/* получение референса на реализацию класса Application */
+object Instance {
+    fun <App : ObserverApplication> from(context: Context) : App = context.applicationContext as App
 
-        fun <App : ObserverApplication> from(src: View) : App = from(src.context)
+    fun <App : ObserverApplication> from(src: View) : App = from(src.context)
 
-        fun from(src: View): FragmentActivity? {
-            var context = src.context
-            while (context is ContextWrapper) {
-                if (context is FragmentActivity) { return context }
-                context = context.baseContext
-            }
-            return null
+    fun from(src: View): FragmentActivity? {
+        var context = src.context
+        while (context is ContextWrapper) {
+            if (context is FragmentActivity) { return context }
+            context = context.baseContext
         }
-
-        fun <T : ViewModel, GodObject : ObserverActivity<T>> baseFeatureActivityFrom(view: View) = from(view) as GodObject
+        return null
     }
 
-    object Open {
-        fun dial(context: Context, url: String) {
-            try {
-                context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse(url)))
-            } catch (e: ActivityNotFoundException) {
-                ShowToast(R.string.no_application_for_call).send()
-            } catch (e: Exception) {
-                ShowToast(R.string.utils_error).send()
-            }
-        }
+    fun <T : ViewModel, GodObject : ObserverActivity<T>> baseFeatureActivityFrom(view: View) = from(view) as GodObject
+}
 
-        fun mailto(context: Context, url: String) {
-            try {
-                context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse(url)))
-            } catch (e: ActivityNotFoundException) {
-                ShowToast(R.string.no_application_for_mail).send()
-            } catch (e: Exception) {
-                ShowToast(R.string.utils_error).send()
-            }
+object Open {
+    fun dial(context: Context, url: String) {
+        try {
+            context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse(url)))
+        } catch (e: ActivityNotFoundException) {
+            ShowToast(R.string.no_application_for_call).send()
+        } catch (e: Exception) {
+            ShowToast(R.string.utils_error).send()
         }
+    }
+
+    fun mailto(context: Context, url: String) {
+        try {
+            context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse(url)))
+        } catch (e: ActivityNotFoundException) {
+            ShowToast(R.string.no_application_for_mail).send()
+        } catch (e: Exception) {
+            ShowToast(R.string.utils_error).send()
+        }
+    }
 
 
-        fun view(context: Context, url: String) {
-            try {
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-            } catch (e: ActivityNotFoundException) {
-                ShowToast(R.string.no_application_for_view).send()
-            } catch (e: Exception) {
-                ShowToast(R.string.utils_error).send()
-            }
+    fun view(context: Context, url: String) {
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (e: ActivityNotFoundException) {
+            ShowToast(R.string.no_application_for_view).send()
+        } catch (e: Exception) {
+            ShowToast(R.string.utils_error).send()
         }
+    }
 
-        @Suppress("SpellCheckingInspection")
-        fun overrideWebViewRequest(context: Context, url : String) = when {
-            url.contains("mailto:") -> {
-                mailto(context, url)
-                true
-            }
-            url.contains("tel:") -> {
-                dial(context, url)
-                true
-            }
-            url.contains("sms:") || url.contains("smsto:") || url.contains("mmsto:") -> {
-                view(context, url)
-                true
-            }
-            else -> false
+    @Suppress("SpellCheckingInspection")
+    fun overrideWebViewRequest(context: Context, url : String) = when {
+        url.contains("mailto:") -> {
+            mailto(context, url)
+            true
         }
+        url.contains("tel:") -> {
+            dial(context, url)
+            true
+        }
+        url.contains("sms:") || url.contains("smsto:") || url.contains("mmsto:") -> {
+            view(context, url)
+            true
+        }
+        else -> false
     }
 }

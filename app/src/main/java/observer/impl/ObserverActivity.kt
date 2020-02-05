@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.widget.Toast
 import androidx.annotation.CallSuper
+import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -67,7 +68,7 @@ abstract class ObserverActivity<T : ViewModel> : AppCompatActivity(), ProtectedO
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        (getModel() as? ParserFullImpl<*>)?.load(savedInstanceState)
+        (getModel() as? ParserBaseImpl<*>)?.load(savedInstanceState)
         super.onSaveInstanceState(savedInstanceState)
     }
 
@@ -100,6 +101,10 @@ abstract class ObserverActivity<T : ViewModel> : AppCompatActivity(), ProtectedO
 
     fun getModel() = ViewModelProviders.of(this).get(EmptyBaseModel.ME, this.modelClass)
 
+    fun putToResumeStack(obj : ObserverImpl){
+        this.stackEventsByResume.push(obj)
+    }
+
     @Suppress("UNCHECKED_CAST")
     open val modelClass : Class<T> = EmptyBaseModel::class.java as Class<T>
 
@@ -112,14 +117,15 @@ abstract class ObserverActivity<T : ViewModel> : AppCompatActivity(), ProtectedO
                 } catch (e: Exception) { PermissionResponse(arg.permissions, null).send() }
             is ShowToast ->
                 runOnUiThread {
-                    val t = Toast.makeText(this, arg.string(resources), Toast.LENGTH_LONG)
-                    t.setGravity(Gravity.CENTER, 0, 0)
-                    t.show()
+                    showToast(arg.string(resources))
                 }
         }
     }
 
-    fun putToResumeStack(obj : ObserverImpl){
-        this.stackEventsByResume.push(obj)
+    @MainThread
+    open fun showToast(srt : String) {
+        val t = Toast.makeText(this, srt, Toast.LENGTH_LONG)
+        t.setGravity(Gravity.CENTER, 0, 0)
+        t.show()
     }
 }

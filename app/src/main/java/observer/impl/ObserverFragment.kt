@@ -78,7 +78,9 @@ abstract class ObserverFragment<T : ViewModel> : Fragment(), ProtectedObserverLi
     @AnyThread
     fun showDialog(dialog: DialogFragment) {
         activity?.runOnUiThread {
-            if (fragmentManager != null) dialog.show(fragmentManager!!, dialog.javaClass.simpleName)
+            activity?.supportFragmentManager?.let {
+                dialog.show(it, dialog.javaClass.simpleName)
+            }
         }
     }
 

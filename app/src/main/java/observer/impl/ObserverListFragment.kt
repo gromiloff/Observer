@@ -107,6 +107,7 @@ abstract class ObserverListFragment<Adapter : RecyclerView.Adapter<RecyclerView.
 
     @CallSuper
     @MainThread
+    // метод установки адаптера для списка
     fun installAdapter() {
         this.list?.also {
             this.adapter = createAndGetAdapter()
