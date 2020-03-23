@@ -20,6 +20,8 @@ class FragmentObserver : FastObserver() {
         fun deleteObserver(o: ProtectedObserverListener) {
             instance.deleteObserver(o)
         }
+
+        fun countListeners() = this.instance.countListeners()
     }
 }
 

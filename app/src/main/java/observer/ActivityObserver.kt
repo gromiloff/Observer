@@ -20,6 +20,8 @@ class ActivityObserver : FastObserver() {
         fun deleteObserver(o: ProtectedObserverListener) {
             this.instance.deleteObserver(o)
         }
+
+        fun countListeners() = this.instance.countListeners()
     }
 }
 
