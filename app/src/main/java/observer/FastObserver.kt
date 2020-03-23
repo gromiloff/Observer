@@ -49,6 +49,8 @@ open class FastObserver {
                     .forEach { it.update(this, arg) }
         }
     }
+
+    fun countListeners() = this.obs.size
 }
 
 interface ProtectedObserverListener {
