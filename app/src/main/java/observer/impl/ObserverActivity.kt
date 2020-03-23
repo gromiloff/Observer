@@ -12,7 +12,7 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import observer.*
 import observer.event.OpenScreenWithModelData
 import observer.event.PermissionRequest
@@ -86,7 +86,7 @@ abstract class ObserverActivity<T : ViewModel> : AppCompatActivity(), ProtectedO
 
     override fun update(o: FastObserver, arg: Any?) {
         when (arg) {
-            is OpenScreenWithModelData -> arg.fill(this)
+            is OpenScreenWithModelData -> arg.apply { additionalParserForStartNewActivity()?.let { arg.addParsers(it) } }.fill(this)
             else -> command(arg as ObserverImpl)
         }
     }
@@ -99,7 +99,7 @@ abstract class ObserverActivity<T : ViewModel> : AppCompatActivity(), ProtectedO
 
     override fun consumerClass() = this.consumeKey
 
-    fun getModel() = ViewModelProviders.of(this).get(EmptyBaseModel.ME, this.modelClass)
+    fun getModel() = ViewModelProvider(this).get(EmptyBaseModel.ME, this.modelClass)
 
     fun putToResumeStack(obj : ObserverImpl){
         this.stackEventsByResume.push(obj)
@@ -128,4 +128,6 @@ abstract class ObserverActivity<T : ViewModel> : AppCompatActivity(), ProtectedO
         t.setGravity(Gravity.CENTER, 0, 0)
         t.show()
     }
+
+    protected open fun additionalParserForStartNewActivity() : Collection<ParserFullImpl<*>>? = null
 }

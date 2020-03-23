@@ -9,10 +9,7 @@ import androidx.annotation.AnyThread
 import androidx.annotation.CallSuper
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.*
 import observer.FastObserver
 import observer.FragmentObserver
 import observer.ParserBaseImpl
@@ -24,7 +21,7 @@ abstract class ObserverFragment<T : ViewModel> : Fragment(), ProtectedObserverLi
     abstract val layoutId : Int
     abstract val modelClass: Class<T>
 
-    protected open val observer : androidx.lifecycle.Observer<Any?> = androidx.lifecycle.Observer {}
+    protected open val observer : Observer<Any?> = androidx.lifecycle.Observer {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (getModel() as? LifecycleObserver)?.also { this.lifecycle.addObserver(it) }
@@ -40,7 +37,7 @@ abstract class ObserverFragment<T : ViewModel> : Fragment(), ProtectedObserverLi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (getModel() as? LiveModel<*>)?.getLiveData()?.observe(this, this.observer)
+        (getModel() as? LiveModel<*>)?.getLiveData()?.observe(this.viewLifecycleOwner, this.observer)
     }
     
     override fun onStart() {
@@ -86,7 +83,7 @@ abstract class ObserverFragment<T : ViewModel> : Fragment(), ProtectedObserverLi
 
     fun getModel() = getCustomModel(this.modelClass)
 
-    fun <Model : ViewModel> getCustomModel(clazz: Class<Model>) : Model = ViewModelProviders.of(this).get(clazz)
+    fun <Model : ViewModel> getCustomModel(clazz: Class<Model>) : Model = ViewModelProvider(this).get(clazz)
 }
 
 interface LiveModel<Data> {

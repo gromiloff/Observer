@@ -15,10 +15,21 @@ open class OpenScreenWithModelData(private val clz: Class<*>,
                                    private val code: Int = -1,
                                    private val parsers: ArrayList<ParserFullImpl<*>> = ArrayList()
 ) : ActivityObserverImpl() {
+    constructor(clz: Class<*>,
+                closeCurrent: Boolean = false,
+                code: Int = -1,
+                single : ParserFullImpl<*>) : this(clz, closeCurrent, code) {
+        addParser(single)
+    }
 
     @AnyThread
     fun addParser(parser : ParserFullImpl<*>){
         this.parsers.add(parser)
+    }
+
+    @AnyThread
+    fun addParsers(parser : Collection<ParserFullImpl<*>>){
+        this.parsers.addAll(parser)
     }
 
     @MainThread
@@ -26,10 +37,7 @@ open class OpenScreenWithModelData(private val clz: Class<*>,
         var bundle : Bundle? = null
         this.parsers.forEach { bundle = it.save(bundle) }
 
-        val i = Intent(activity, this.clz)
-        bundle?.let { i.putExtras(it) }
-
-        activity.startActivityForResult(i, this.code)
+        activity.startActivityForResult(Intent(activity, this.clz).apply { bundle?.let { this.putExtras(it) } }, this.code)
         if (this.closeCurrent) activity.finish()
     }
 }
