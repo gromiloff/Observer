@@ -11,13 +11,13 @@ interface ParserBaseImpl<ME : ParserBaseImpl<ME>> {
 }
 
 interface ParserFullImpl<ME : ParserFullImpl<ME>> : ParserBaseImpl<ME> {
-    fun save(out: Bundle?) : Bundle
+    fun save(out: Bundle? = null) : Bundle
 }
 
 open class EmptyBaseModel : ViewModel(), ParserFullImpl<EmptyBaseModel> {
 
     @CallSuper
-    override fun save(out: Bundle?) = Bundle()
+    override fun save(out: Bundle?) = out ?: Bundle()
 
     @CallSuper
     override fun load(vararg bundle: Bundle?) = this
